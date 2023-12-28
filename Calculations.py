@@ -58,15 +58,15 @@ class Category:
             self.spending += amount
             date_string = date.strftime("%Y-%m-%d") #ISO format
             self.ledger.append({"amount": -amount, "description": description, "date": date_string})
-            return True
         else:
             raise Exception("The account had insufficient funds for this transaction.")
     
     def transfer_expense(self, amount, other):
-        transfer = self.withdraw(amount, description = f"Transfer to {other.expense_type}")
-        if transfer == True:
-            other.deposit(amount, description=f"Transfer from {self.expense_type}")
-        return transfer
+        try:
+            self.withdraw(amount, description = f"Transfer to {other.expense_type}")
+        except Exception as e:
+            raise e
+        other.deposit(amount, description = f"Transfer from {self.expense_type}")
     
     def check_funds(self, amount):
         return amount <= self.total
