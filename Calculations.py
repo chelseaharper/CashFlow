@@ -1,11 +1,8 @@
 import datetime
 
-#### Function to create an account ####
-def create_account():
-    pass
-
-##### Functions to define spacing of text display in console ####
+##### Functions to define spacing of text display in console output ####
 def head_spacing(name, symbol, length):
+  """ Defines a formatting structure for the category heading """
   space_length = length - len(name)
   left_side = symbol * (space_length//2)
   right_side = symbol * (length - len(name) - len(left_side))
@@ -13,6 +10,7 @@ def head_spacing(name, symbol, length):
   return formatting
 
 def item_spacing(description, symbol, length, amount):
+  """ Defines a formatting structure for the category entries """
   if len(description) > 23:
     descript = description[0:23]
     space_length = length - (len(descript) + len(amount))
@@ -24,16 +22,9 @@ def item_spacing(description, symbol, length, amount):
     formatting = description + side + amount
   return formatting
 
-#### Function to calculate spending by expense category ####
-def spending(categories):
-    total_sum = sum(i.spending for i in categories)
-    result = []
-    for i in categories:
-      result.append((i.expense_type, (i.spending * 100) // total_sum))
-    return result
-
 ##### Creation of categories of spending and tracking of expenses ####
 class Category:
+    """ A budget category which tracks spending for a particular type of expense """
     categories = []
 
     @classmethod
@@ -53,13 +44,14 @@ class Category:
         return self.total
     
     def set_target(self, amount, frequency="Monthly"):
+        """ defines predicted spending in the category """
         self.expense_target = int(amount)
         self.expense_target_frequency = frequency
     
     def deposit(self, amount, description="", date = datetime.datetime.now()):
         self.total += amount
         date_string = date.strftime("%d-%b-%Y")
-        self.ledger.append({"amount: ":amount,
+        self.ledger.append({"amount":amount,
                             "description": description,
                             "date": date_string})
     def withdraw(self, amount, description = "", date = datetime.datetime.now()):
@@ -79,13 +71,10 @@ class Category:
         return transfer
     
     def check_funds(self, amount):
-        if amount > self.total:
-            over_target = abs(self.total - amount)
-            return over_target
-        else:
-            return True
+        return amount <= self.total
     
     def __str__(self):
+        """ Redefine string method to create custom print output when object is printed """
         expenses = self.ledger
         line_format = head_spacing(self.expense_type, "*", 30)
         line_items = [line_format]
@@ -100,8 +89,3 @@ class Category:
         line_items.append(total)
         display = "\n".join(line_items)
         return display
-
-
-if __name__ == "__main__":
-    create_account()
-
