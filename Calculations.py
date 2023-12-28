@@ -1,26 +1,24 @@
 import datetime
 
 ##### Functions to define spacing of text display in console output ####
-def head_spacing(name, symbol, length):
-  """ Defines a formatting structure for the category heading """
-  space_length = length - len(name)
-  left_side = symbol * (space_length//2)
-  right_side = symbol * (length - len(name) - len(left_side))
-  formatting = left_side + name + right_side
-  return formatting
+def format_head(name, symbol, length):
+    """ Defines a formatting structure for the category heading """
+    space_length = length - len(name)
+    left_side = symbol * (space_length//2)
+    right_side = symbol * (length - len(name) - len(left_side))
+    formatting = left_side + name + right_side
+    return formatting
 
-def item_spacing(description, symbol, length, amount):
-  """ Defines a formatting structure for the category entries """
-  if len(description) > 23:
-    descript = description[0:23]
+def format_item(description, symbol, length, amount):
+    """ Defines a formatting structure for the category entries """
+    if len(description) > 23:
+        descript = description[0:23]
+    else:
+        descript = description
     space_length = length - (len(descript) + len(amount))
     side = symbol * space_length
     formatting = descript + side + amount
-  else:
-    space_length = length - (len(description) + len(amount))
-    side = symbol * space_length
-    formatting = description + side + amount
-  return formatting
+    return formatting
 
 ##### Creation of categories of spending and tracking of expenses ####
 class Category:
@@ -50,7 +48,7 @@ class Category:
     
     def deposit(self, amount, description="", date = datetime.datetime.now()):
         self.total += amount
-        date_string = date.strftime("%d-%b-%Y")
+        date_string = date.strftime("%Y-%m-%d") #ISO format
         self.ledger.append({"amount":amount,
                             "description": description,
                             "date": date_string})
@@ -58,7 +56,7 @@ class Category:
         if self.check_funds(amount):
             self.total -= amount
             self.spending += amount
-            date_string = date.strftime("%d-%b-%Y")
+            date_string = date.strftime("%Y-%m-%d") #ISO format
             self.ledger.append({"amount": -amount, "description": description, "date": date_string})
             return True
         else:
@@ -76,16 +74,13 @@ class Category:
     def __str__(self):
         """ Redefine string method to create custom print output when object is printed """
         expenses = self.ledger
-        line_format = head_spacing(self.expense_type, "*", 30)
+        line_format = format_head(self.expense_type, "*", 30)
         line_items = [line_format]
-        for i in expenses:
-            index = self.ledger.index(i)
-            expense = expenses[index]
-            expense_desc = expense["description"]
+        for expense in expenses:
             expense_amount = "{:.2f}".format(expense["amount"])
-            line_item = item_spacing(expense_desc, " ", 30, expense_amount)
+            line_item = format_item(expense["description"], " ", 30, expense_amount)
             line_items.append(line_item)
-        total = item_spacing("Total:", " ", 30, str(self.get_balance()))
+        total = format_item("Total:", " ", 30, "{:.2f}".format(self.get_balance()))
         line_items.append(total)
         display = "\n".join(line_items)
         return display
