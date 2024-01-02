@@ -78,6 +78,7 @@ class Category:
             self.withdraw(amount, description = f"Transfer to {other.expense_type}")
         except Exception as e:
             raise e
+        self.set_target(-amount)
         other.deposit(amount, description = f"Transfer from {self.expense_type}")
     
     def check_funds(self, amount):
