@@ -41,23 +41,35 @@ class Category:
     def get_balance(self):
         return self.total
     
-    def set_target(self, amount, frequency="Monthly"):
+    def set_target(self, amount):
         """ defines predicted spending in the category """
-        self.expense_target = int(amount)
-        self.expense_target_frequency = frequency
+        # In a more complex program, this would likely be overwritten in a
+        # derived class to only adjust the target under certain circumstances
+        if self.expense_target == 0:
+            self.expense_target = int(amount)
+        else:
+            self.expense_target += int(amount)
     
     def deposit(self, amount, description="", date = datetime.datetime.now()):
         self.total += amount
+        self.set_target(amount)
         date_string = date.strftime("%Y-%m-%d") #ISO format
         self.ledger.append({"amount":amount,
                             "description": description,
                             "date": date_string})
+    
     def withdraw(self, amount, description = "", date = datetime.datetime.now()):
         if self.check_funds(amount):
-            self.total -= amount
-            self.spending += amount
-            date_string = date.strftime("%Y-%m-%d") #ISO format
-            self.ledger.append({"amount": -amount, "description": description, "date": date_string})
+            if self.check_spending(amount):
+                self.total -= amount
+                self.spending += amount
+                date_string = date.strftime("%Y-%m-%d") #ISO format
+                self.ledger.append({"amount": -amount, "description": description, "date": date_string})
+            else:
+                # This else clause could be overwritten in a more complex program to allow overspending
+                raise Exception(
+                    "This transaction would result in spending beyond the category spending target."
+                    )
         else:
             raise Exception("The account had insufficient funds for this transaction.")
     
@@ -70,6 +82,9 @@ class Category:
     
     def check_funds(self, amount):
         return amount <= self.total
+    
+    def check_spending(self, amount):
+        return (self.spending + amount) <= self.expense_target
     
     def __str__(self):
         """ Redefine string method to create custom print output when object is printed """
