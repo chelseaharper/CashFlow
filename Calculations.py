@@ -58,24 +58,29 @@ class Category:
                             "description": description,
                             "date": date_string})
     
-    def withdraw(self, amount, description = "", date = datetime.datetime.now()):
+    def withdraw(self, amount, description = "", spending = True, date = datetime.datetime.now()):
         if self.check_funds(amount):
-            if self.check_spending(amount):
+            if spending:
+                if self.check_spending(amount):
+                    self.total -= amount
+                    self.spending += amount
+                    date_string = date.strftime("%Y-%m-%d") #ISO format
+                    self.ledger.append({"amount": -amount, "description": description, "date": date_string})
+                else:
+                    # This else clause could be overwritten in a more complex program to allow overspending
+                    raise Exception(
+                        "This transaction would result in spending beyond the category spending target."
+                        )
+            else:
                 self.total -= amount
-                self.spending += amount
                 date_string = date.strftime("%Y-%m-%d") #ISO format
                 self.ledger.append({"amount": -amount, "description": description, "date": date_string})
-            else:
-                # This else clause could be overwritten in a more complex program to allow overspending
-                raise Exception(
-                    "This transaction would result in spending beyond the category spending target."
-                    )
         else:
             raise Exception("The account had insufficient funds for this transaction.")
     
     def transfer_expense(self, amount, other):
         try:
-            self.withdraw(amount, description = f"Transfer to {other.expense_type}")
+            self.withdraw(amount, description = f"Transfer to {other.expense_type}", spending = False)
         except Exception as e:
             raise e
         self.set_target(-amount)
