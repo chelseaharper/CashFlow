@@ -30,6 +30,7 @@ class TestCalculations(unittest.TestCase):
         food.transfer_expense(2000, rent)
         self.assertEqual(food.total, 1000)
         self.assertEqual(food.expense_target, 1000)
+        self.assertEqual(food.spending, 0)
         self.assertEqual(rent.total, 2000)
         self.assertEqual(rent.expense_target, 2000)
         
